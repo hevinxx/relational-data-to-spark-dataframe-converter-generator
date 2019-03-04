@@ -9,7 +9,7 @@ def buildSchema(field_name, type_initial, nullable):
     elif type_initial == "s":
         type_name = "StringType"
 
-    if nullable == "t":
+    if nullable == "t" or nullable == "true":
         nullable = "true"
     else:
         nullable = "false"
@@ -33,20 +33,28 @@ def buildRow(index, type_initial):
 
 if __name__ == "__main__":
     table_name = raw_input("What is the table name? ")
+    field_names = []
+    type_initials = []
+    nullables = []
     schema = ""
     row = ""
-    index = 0
     while True:
         field_name = raw_input("What is the field name? If you want to stop, just type 'stop'.  ")
         if field_name == "stop":
-            schema = schema[:-2]
-            row = row[:-2]
             break
-        type_initial = raw_input("What is the type of the field? l/i/t/s    ")
-        nullable = raw_input("Is it nullable? Default is false. ")
-        schema += "    " + buildSchema(field_name, type_initial, nullable) + ",\n"
-        row += "        " + buildRow(index, type_initial) + ",\n"
-        index += 1
+        field_names.append(field_name)
+
+    for item in field_names:
+        type_initial = raw_input("What is the type of the {}? l/i/t/s    ".format(item))
+        type_initials.append(type_initial)
+    for item in field_names:
+        nullable = raw_input("is {} nullable? Default is false. ".format(item))
+        nullables.append(nullable)
+    for i, item in enumerate(field_names):
+        schema += "    " + buildSchema(item, type_initials[i], nullables[i]) + ",\n"
+        row += "        " + buildRow(i, type_initials[i]) + ",\n"
+    schema = schema[:-2]
+    row = row[:-2]
     result = """%spark
 val {}Url = s"hdfs://0.0.0.0:9000/user/root/{}/part-m-0000*"
 val {}Rdd = sc.textFile({}Url, 4).map(line => line.split("\\001").to[List])
