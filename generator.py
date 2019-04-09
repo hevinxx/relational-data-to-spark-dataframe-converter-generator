@@ -57,7 +57,7 @@ if __name__ == "__main__":
     row = row[:-2]
     result = """%spark
 val {}Url = s"hdfs://0.0.0.0:9000/user/root/{}/part-m-0000*"
-val {}Rdd = sc.textFile({}Url, 4).map(line => line.split("\\001").to[List])
+val {}Rdd = sc.textFile({}Url, 4).map(line => line.split("\\u0001").to[List])
 
 val {}Schema = StructType(Seq(
 {}
