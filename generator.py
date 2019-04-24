@@ -56,6 +56,7 @@ if __name__ == "__main__":
     schema = schema[:-2]
     row = row[:-2]
     result = """%spark
+sqlContext.sql("drop table if exists {}")
 val {}Url = s"hdfs://0.0.0.0:9000/user/root/{}/part-m-0000*"
 val {}Rdd = sc.textFile({}Url, 4).map(line => line.split("\\u0001").to[List])
 
@@ -70,6 +71,7 @@ def {}Row(line: List[String]): Row = {{
 }}
 
 val {} = spark.createDataFrame({}Rdd.map({}Row), {}Schema)
-{}.write.mode("overwrite").saveAsTable("{}")
-""".format(table_name, table_name, table_name, table_name, table_name, schema, table_name, row, table_name, table_name, table_name, table_name, table_name, table_name)
+{}.createOrReplaceTempView("{}")
+sqlContext.cacheTable("{}")
+""".format(table_name, table_name, table_name, table_name, table_name, table_name, schema, table_name, row, table_name, table_name, table_name, table_name, table_name, table_name, table_name)
     print(result)
